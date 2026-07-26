@@ -13,7 +13,10 @@ object SettingsOptions {
     )
 
     val targetLanguages = listOf(
+        SettingsOption("fa", "فارسی (Persian)"),
         SettingsOption("en", "English"),
+        SettingsOption("ar", "العربية (Arabic)"),
+        SettingsOption("tr", "Türkçe (Turkish)"),
         SettingsOption("zh-Hans", "Chinese (Simplified)"),
         SettingsOption("zh-Hant", "Chinese (Traditional)"),
         SettingsOption("ja", "Japanese"),
@@ -22,6 +25,11 @@ object SettingsOptions {
         SettingsOption("fr", "French"),
         SettingsOption("de", "German"),
         SettingsOption("ru", "Russian"),
+        SettingsOption("pt", "Portuguese"),
+        SettingsOption("it", "Italian"),
+        SettingsOption("hi", "Hindi"),
+        SettingsOption("ur", "اردو (Urdu)"),
+        SettingsOption("ps", "پښتو (Pashto)"),
     )
 
     val subtitleMode = listOf(
