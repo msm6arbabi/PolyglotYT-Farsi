@@ -1,0 +1,76 @@
+name: Build & Release APK
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK 37
+        run: |
+          sdkmanager --channel=3 "platforms;android-37.0" "build-tools;37.0.0"
+          yes | sdkmanager --licenses
+
+      - name: Build Debug APK
+        run: |
+          chmod +x gradlew
+          touch local.properties
+          echo "sdk.dir=$ANDROID_HOME" >> local.properties
+          ./gradlew :app:assembleDebug --no-daemon
+
+      - name: Compute version
+        id: version
+        run: |
+          VERSION_NAME=$(grep 'versionName' app/build.gradle.kts | sed -E 's/.*versionName = "([^"]+)".*/\1/' | head -1)
+          echo "version=$VERSION_NAME" >> "$GITHUB_OUTPUT"
+          echo "tag=v${VERSION_NAME}-farsi-$(date +%Y%m%d-%H%M)" >> "$GITHUB_OUTPUT"
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: "📦 PolyglotYT-Farsi - نسخه ${{ steps.version.outputs.version }}"
+          body: |
+            ## 🎉 نسخه جدید PolyglotYT-Farsi
+
+            نسخه ادغام‌شده: آخرین کد اصلی PolyglotYT + پشتیبانی فارسی و زبان‌های بیشتر.
+
+            ### ✨ زبان‌های اضافه‌شده:
+            - 🇮🇷 فارسی (Persian)
+            - العربية (Arabic)
+            - Türkçe (Turkish)
+            - Português (Portuguese)
+            - Italiano (Italian)
+            - Hindi
+            - اردو (Urdu)
+            - پښتو (Pashto)
+
+            ### 📥 نصب:
+            1. APK را دانلود کن
+            2. نصب کن
+            3. LSPosed Manager → PolyglotYT → فعال کن برای YouTube
+            4. ری‌استارت یوتیوب
+
+            ### ⚙️ تنظیمات:
+            در YouTube → Settings → PolyglotYT → زبان مقصد را **فارسی** کن
+          files: app/build/outputs/apk/debug/*.apk
+          fail_on_unmatched_files: true
